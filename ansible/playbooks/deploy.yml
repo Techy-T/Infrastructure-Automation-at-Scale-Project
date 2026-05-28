@@ -1,38 +1,72 @@
-- name: Configure EC2 and deploy app
+- name: Deploy Nginx on Amazon Linux EC2
   hosts: all
   become: true
 
+  vars:
+    compose_version: "v2.27.0"
+    compose_install_path: /usr/local/lib/docker/cli-plugins/docker-compose
+
   tasks:
 
-    - name: Install Docker
-      apt:
-        name: docker.io
+    - name: Update all packages
+      yum:
+        name: "*"
+        state: latest
+
+    - name: Install Docker (Amazon Linux 2023)
+      dnf:
+        name: docker
         state: present
         update_cache: yes
 
-    - name: Start Docker
+    - name: Start Docker service
       service:
         name: docker
         state: started
         enabled: yes
 
-    - name: Install Docker Compose
-      get_url:
-        url: https://github.com/docker/compose/releases/download/v2.24.6/docker-compose-linux-x86_64
-        dest: /usr/local/bin/docker-compose
+    - name: Add ec2-user to docker group
+      user:
+        name: ec2-user
+        groups: docker
+        append: yes
+
+    - name: Create Docker CLI plugins directory
+      file:
+        path: /usr/local/lib/docker/cli-plugins
+        state: directory
         mode: '0755'
+
+    - name: Download Docker Compose binary
+      get_url:
+        url: "https://github.com/docker/compose/releases/download/{{ compose_version }}/docker-compose-linux-x86_64"
+        dest: "{{ compose_install_path }}"
+        mode: '0755'
+
+    - name: Verify Docker Compose installation
+      command: docker compose version
+      register: compose_check
+      changed_when: false
+
+    - name: Show Docker Compose version
+      debug:
+        msg: "{{ compose_check.stdout }}"
 
     - name: Create app directory
       file:
-        path: /home/ubuntu/app
+        path: /home/ec2-user/app
         state: directory
+        owner: ec2-user
+        group: ec2-user
 
     - name: Copy docker-compose file
       copy:
         src: ../../app/docker-compose.yml
-        dest: /home/ubuntu/app/docker-compose.yml
+        dest: /home/ec2-user/app/docker-compose.yml
+        owner: ec2-user
+        group: ec2-user
 
-    - name: Start containers
+    - name: Run Nginx container
       command: docker compose up -d
       args:
-        chdir: /home/ubuntu/app
+        chdir: /home/ec2-user/app
