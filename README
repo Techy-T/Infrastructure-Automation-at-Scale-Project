@@ -1,0 +1,105 @@
+Terraform
+   ↓
+AWS VPC (Custom Network)
+   ↓
+Public Subnets + Internet Gateway
+   ↓
+EC2 Instances (Amazon Linux 2023)
+   ↓
+Ansible Dynamic Inventory (AWS)
+   ↓
+Docker Installation
+   ↓
+Nginx Container Deployment
+   ↓
+Application Access via Public IP
+
+☁️ Cloud & Tools Used
+Terraform — Infrastructure provisioning
+Ansible — Server configuration automation
+Docker — Containerization
+Amazon Web Services — Cloud provider (EC2, VPC, networking)
+Amazon Linux 2023 — EC2 operating system
+
+⚙️ Key Features
+
+🏗 Infrastructure Automation
+Custom VPC creation with CIDR-based networking
+Public subnets across multiple availability zones
+Internet Gateway and route table configuration
+Security groups for SSH and HTTP access
+EC2 instance provisioning using Terraform
+
+
+
+🔄 Configuration Automation
+Ansible dynamic inventory using AWS plugin
+Automatic EC2 discovery (no static IPs required)
+Automated Docker installation and setup
+Remote server configuration without manual SSH setup
+
+
+
+🐳 Application Deployment
+Docker installed via Ansible
+Nginx container deployed using Docker CLI
+Fully automated container lifecycle management
+
+
+
+
+🚀 Deployment Guide
+
+1. git clone <repo-url>
+cd into repo
+
+2. Configure AWS Credentials
+aws configure
+
+Ensure your IAM user has permissions for:
+EC2
+VPC
+IAM (if required)
+
+3. Provision Infrastructure (Terraform)
+cd terraform
+terraform init
+terraform apply
+
+This will create:
+VPC
+Subnets
+Route tables
+Security groups
+EC2 instances
+
+4. Configure Servers & Deploy Application (Ansible)
+cd ansible
+ansible-playbook playbooks/deploy.yml
+
+Ansible will:
+Discover EC2 instances automatically (dynamic inventory)
+Install Docker
+Configure the system
+Deploy Nginx container
+
+5. Access Application
+
+Open in browser:
+
+http://<EC2_PUBLIC_IP>
+
+You should see the Nginx welcome page.
+
+
+
+🚀 Future Improvements
+
+This project can be further extended by:
+
+Adding Application Load Balancer (ALB)
+Implementing Auto Scaling Groups
+Using private subnets + NAT Gateway
+Integrating CI/CD pipeline (Jenkins or GitHub Actions)
+Storing images in ECR (Elastic Container Registry)
+Implementing monitoring (CloudWatch + Prometheus)
